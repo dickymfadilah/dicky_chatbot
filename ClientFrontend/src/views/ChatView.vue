@@ -3,6 +3,9 @@
     <div class="chat-header">
       <h2>Chat with AI</h2>
       <div class="header-controls">
+        <button class="db-button" title="Show database collections" @click="showDatabaseInfo">
+          <span>🗃️ DB</span>
+        </button>
         <button class="theme-toggle" aria-label="Toggle theme" @click="toggleTheme">
           <span v-if="isDarkMode">🌞</span>
           <span v-else>🌙</span>
@@ -159,6 +162,15 @@ export default {
       }, 100)
     }
     
+    const showDatabaseInfo = async () => {
+      try {
+        userInput.value = "Show me the available database collection and what kind of data they contain."
+        await handleSendMessage()
+      } catch (error) {
+        console.error('Failed to query database:', error)
+      }
+    }
+    
     onMounted(async () => {
       try {
         await chatStore.fetchHistory()
@@ -178,7 +190,8 @@ export default {
       scrollToBottom,
       isDarkMode,
       toggleTheme,
-      showTypingIndicator
+      showTypingIndicator,
+      showDatabaseInfo
     }
   }
 }
@@ -326,6 +339,24 @@ export default {
   display: flex;
   gap: 0.5rem;
   align-items: center;
+}
+
+.db-button {
+  background-color: var(--accent-color);
+  color: var(--white);
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.db-button:hover {
+  background-color: var(--primary-color);
 }
 
 .theme-toggle {

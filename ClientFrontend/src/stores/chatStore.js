@@ -7,13 +7,15 @@ export const useChatStore = defineStore('chat', {
   state: () => ({
     messages: [],
     isLoading: false,
-    error: null
+    error: null,
+    collections: []
   }),
   
   getters: {
     getMessages: (state) => state.messages,
     hasError: (state) => state.error !== null,
-    getError: (state) => state.error
+    getError: (state) => state.error,
+    getCollections: (state) => state.collections
   },
   
   actions: {
@@ -78,6 +80,43 @@ export const useChatStore = defineStore('chat', {
       } catch (error) {
         this.error = error.message || 'Failed to clear history'
         console.error('Error clearing history:', error)
+        throw error
+      } finally {
+        this.isLoading = false
+      }
+    },
+    
+    async fetchCollections() {
+      try {
+        this.isLoading = true
+        this.error = null
+        
+        const response = await axios.get(`${API_URL}/collections`)
+        this.collections = response.data.collections
+        
+        return response.data.collections
+      } catch (error) {
+        this.error = error.message || 'Failed to fetch collections'
+        console.error('Error fetching collections:', error)
+        throw error
+      } finally {
+        this.isLoading = false
+      }
+    },
+    
+    async fetchCollectionData(collectionName, limit = 10, skip = 0) {
+      try {
+        this.isLoading = true
+        this.error = null
+        
+        const response = await axios.get(`${API_URL}/collection/${collectionName}`, {
+          params: { limit, skip }
+        })
+        
+        return response.data.data
+      } catch (error) {
+        this.error = error.message || 'Failed to fetch collection data'
+        console.error('Error fetching collection data:', error)
         throw error
       } finally {
         this.isLoading = false

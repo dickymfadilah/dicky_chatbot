@@ -31,6 +31,13 @@ The application consists of two main components:
    - Conceptual explanations
    - Language understanding and generation
 
+4. **MongoDB Integration**
+   - Query MongoDB collections through natural language
+   - List available collections in the database
+   - Retrieve documents by ID
+   - Perform text search across collections
+   - Filter data using MongoDB query syntax
+
 ### What You Can Ask
 
 The chatbot can respond to a variety of queries, including:
@@ -59,6 +66,13 @@ The chatbot can respond to a variety of queries, including:
    - "Create a brief story about a space adventure"
    - "Generate ideas for a birthday celebration"
 
+6. **MongoDB Queries**
+   - "List all collections in the database"
+   - "Show me documents from the users collection"
+   - "Find documents in the products collection where price is less than 100"
+   - "Search for 'machine learning' in the articles collection"
+   - "Get the document with ID 12345 from the orders collection"
+
 ### Information Limitations
 
 1. **Training Cutoff**
@@ -85,11 +99,13 @@ The backend uses:
 - FastAPI for the web server
 - Langchain for the conversation chain and memory
 - Ollama with the Llama 3 model for text generation
+- MongoDB for database storage and retrieval
 
 Key components:
 - `ConversationChain`: Manages the conversation flow
 - `ConversationBufferMemory`: Stores conversation history
 - Ollama LLM: Generates responses based on the input and conversation history
+- MongoDB Tools: Provide database query capabilities through natural language
 
 ### Frontend (Vue.js + Pinia)
 
@@ -131,22 +147,28 @@ Future improvements could include:
    - Allow the chatbot to access specific knowledge bases
    - Implement RAG (Retrieval-Augmented Generation) for more accurate responses
 
-2. **Tool Integration**
+2. **Advanced MongoDB Features**
+   - Add support for aggregation pipelines
+   - Implement schema validation and data visualization
+   - Add support for geospatial queries
+   - Enable database management operations (create/update/delete)
+
+3. **Tool Integration**
    - Add specialized tools for tasks like web searches
    - Implement calculators or other utility functions
    - Connect to external APIs for real-time data
 
-3. **Model Improvements**
+4. **Model Improvements**
    - Switch to different Ollama models for specific use cases
    - Fine-tune the model on domain-specific data
    - Implement model fallbacks for different types of queries
 
-4. **Structured Output**
+5. **Structured Output**
    - Add output parsers for structured data
    - Implement JSON or XML formatting for machine-readable responses
    - Create specialized response templates for different query types
 
-5. **Advanced Memory**
+6. **Advanced Memory**
    - Implement more sophisticated memory mechanisms
    - Add long-term storage for user preferences
    - Create user profiles for personalized interactions

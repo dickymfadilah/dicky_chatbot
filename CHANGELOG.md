@@ -2,6 +2,15 @@
 
 All notable changes to the LangChain Ollama Chatbot project will be documented in this file.
 
+## [0.2.1] - 2025-03-15
+
+### Fixed
+- Fixed compatibility issue with MongoDB tools and ConversationalAgent:
+  - Refactored MongoDB tools to use the `Tool` class instead of `BaseTool`
+  - Simplified tool implementation to use regular functions instead of classes
+  - Improved error handling for MongoDB operations
+- Updated documentation to reflect the new MongoDB tools implementation
+
 ## [0.2.0] - 2025-03-14
 
 ### Added

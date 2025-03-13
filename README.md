@@ -9,9 +9,9 @@ A modern chatbot application built with LangChain, Ollama, FastAPI, and Vue.js.
 This project implements a full-stack chatbot application with the following components:
 
 - **Backend**: Python FastAPI application with LangChain and Ollama integration
-- **Frontend**: Vue.js application with a modern, responsive UI
+- **Frontend**: Vue.js application with Pinia state management and a modern, responsive UI
 
-The chatbot allows users to have natural language conversations with an AI assistant powered by Ollama's language models.
+The chatbot allows users to have natural language conversations with an AI assistant powered by Ollama's Llama 3 model.
 
 ## Features
 
@@ -20,6 +20,27 @@ The chatbot allows users to have natural language conversations with an AI assis
 - Clean, modern UI with responsive design
 - Easy configuration and deployment
 - Cross-platform compatibility
+
+## Chatbot Capabilities
+
+The chatbot can handle a variety of queries and tasks:
+
+### What You Can Ask
+
+- **General Knowledge**: "What is photosynthesis?", "Who wrote Pride and Prejudice?"
+- **Conceptual Explanations**: "Explain quantum computing in simple terms"
+- **Language Tasks**: "Help me write an email", "Suggest synonyms for 'happy'"
+- **Simple Reasoning**: "If I have 5 apples and give away 2, how many do I have left?"
+- **Creative Content**: "Write a short poem about nature"
+
+### Limitations
+
+- **Training Cutoff**: The model has a knowledge cutoff date and doesn't know about recent events
+- **No Internet Access**: Cannot look up real-time information
+- **No Document Knowledge**: Limited to knowledge in its training data
+- **No Specialized Tools**: Cannot perform complex calculations or run code
+
+For more detailed information about capabilities, see the [Documentation](DOCUMENTATION.md).
 
 ## Project Structure
 
@@ -77,4 +98,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [LangChain](https://www.langchain.com/) for the LLM framework
 - [Ollama](https://ollama.ai/) for the local LLM capabilities
 - [FastAPI](https://fastapi.tiangolo.com/) for the backend framework
-- [Vue.js](https://vuejs.org/) for the frontend framework 
+- [Vue.js](https://vuejs.org/) for the frontend framework
+- [Pinia](https://pinia.vuejs.org/) for state management 

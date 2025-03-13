@@ -69,10 +69,29 @@ Available operations include:
 Think step by step to determine the best way to respond to the user's query.
 """
 
+# Define data analysis prompt for analyzing database results
+DATA_ANALYSIS_PROMPT = """You are a data analysis expert. You have been provided with data from a MongoDB database.
+Your task is to analyze this data and provide insights based on the user's question.
+
+The data has been retrieved from the database based on the user's query. Now you need to:
+1. Understand what the user is asking about this data
+2. Analyze the provided data to find relevant information
+3. Present your findings in a clear, concise manner
+4. If appropriate, suggest further queries or analyses that might be helpful
+
+Remember to focus on the specific aspects of the data that the user is interested in.
+"""
+
 # Create a custom prompt template for the conversation chain
 conversation_prompt = PromptTemplate(
     input_variables=["history", "input"],
     template=f"{SYSTEM_PROMPT}\n\nConversation History:\n{{history}}\nHuman: {{input}}\nAI:"
+)
+
+# Create a data analysis prompt template
+data_analysis_prompt = PromptTemplate(
+    input_variables=["data", "question"],
+    template=f"{DATA_ANALYSIS_PROMPT}\n\nUser Question: {{question}}\n\nDatabase Data: {{data}}\n\nAnalysis:"
 )
 
 # Initialize a regular conversation chain with the custom prompt
@@ -212,10 +231,16 @@ async def chat(chat_message: ChatMessage):
             collection_name = normalized_json.get("collection")
             query_type = normalized_json.get("query_type", "query_documents")
             
-            # Direct handling based on analysis
+            # Step 1: Get data from the database
+            db_data = None
+            collection_list = None
+            
             try:
                 from .mongodb_utils import get_mongodb_client
                 client = get_mongodb_client()
+                
+                # Get list of collections for reference
+                collection_list = client.get_collections()
                 
                 # If collection name is not identified, try to extract it from the query
                 if not collection_name or collection_name == "null":
@@ -227,42 +252,80 @@ async def chat(chat_message: ChatMessage):
                 
                 # List collections
                 if query_type == "list_collections" or "list" in chat_message.message.lower() and "collection" in chat_message.message.lower():
-                    collections = client.get_collections()
-                    return ChatResponse(response=f"Available collections: {', '.join(collections)}")
-                
+                    db_data = {"collections": collection_list}
+                    
                 # Query a specific collection
-                elif collection_name and collection_name != "null":
+                elif collection_name and collection_name != "null" and collection_name in collection_list:
                     try:
-                        # Default to showing some data from the collection
-                        data = client.query_collection(collection_name, None, 5, 0)
-                        return ChatResponse(response=f"Here's some data from the '{collection_name}' collection:\n{json.dumps(data, indent=2, default=str)}")
+                        # Get data from the collection
+                        data = client.query_collection(collection_name, None, 10, 0)
+                        db_data = {"collection": collection_name, "data": data}
                     except Exception as collection_error:
                         print(f"Collection query error: {str(collection_error)}")
-                        collections = client.get_collections()
-                        return ChatResponse(response=f"I couldn't find or query the collection '{collection_name}'. Available collections are: {', '.join(collections)}")
+                        db_data = {"error": f"Could not query collection '{collection_name}'", "collections": collection_list}
                 
-                # If we have a functioning agent and couldn't handle directly, try the agent
-                elif agent is not None:
+                # If we have a functioning agent and couldn't get data directly, try the agent
+                elif agent is not None and not db_data:
                     try:
-                        # Use a simplified input for the agent
-                        response = agent.run(chat_message.message)
-                        return ChatResponse(response=response)
+                        # Use the agent to get data
+                        agent_response = agent.run(chat_message.message)
+                        
+                        # Try to extract JSON data from the agent response
+                        json_match = re.search(r'\{.*\}', agent_response, re.DOTALL)
+                        if json_match:
+                            try:
+                                agent_data = json.loads(json_match.group(0))
+                                db_data = {"agent_data": agent_data, "agent_response": agent_response}
+                            except:
+                                db_data = {"agent_response": agent_response}
+                        else:
+                            db_data = {"agent_response": agent_response}
                     except Exception as agent_error:
                         print(f"Agent error: {str(agent_error)}")
-                        # Fallback to listing collections
-                        collections = client.get_collections()
-                        return ChatResponse(response=f"I'm not sure which collection you're interested in. Here are the available collections: {', '.join(collections)}")
+                        db_data = {"error": "Agent could not retrieve data", "collections": collection_list}
                 
-                # Fallback to listing collections
-                else:
-                    collections = client.get_collections()
-                    return ChatResponse(response=f"I'm not sure which collection you're interested in. Here are the available collections: {', '.join(collections)}")
+                # If we still don't have data, provide collection list
+                if not db_data:
+                    db_data = {"collections": collection_list, "message": "No specific data could be retrieved"}
                     
             except Exception as direct_error:
-                print(f"Direct handling error: {str(direct_error)}")
-                # Final fallback to conversation
-                response = conversation.predict(input=f"I couldn't access the database information you requested. Could you please clarify what you're looking for? Available commands include: list collections, show collection [name], etc.")
-                return ChatResponse(response=response)
+                print(f"Database access error: {str(direct_error)}")
+                db_data = {"error": "Could not access database"}
+            
+            # Step 2: Analyze the data using the LLM
+            try:
+                # Format the data for analysis
+                data_str = json.dumps(db_data, indent=2, default=str)
+                
+                # Use the data analysis prompt to analyze the data
+                analysis_input = {
+                    "data": data_str,
+                    "question": chat_message.message
+                }
+                
+                # Invoke the LLM with the data analysis prompt
+                analysis_result = llm.invoke(data_analysis_prompt.format(**analysis_input))
+                
+                # Return the analysis result
+                return ChatResponse(response=analysis_result)
+                
+            except Exception as analysis_error:
+                print(f"Data analysis error: {str(analysis_error)}")
+                
+                # Fallback: Return the raw data with a simple message
+                if db_data:
+                    if "error" in db_data:
+                        return ChatResponse(response=f"I encountered an issue: {db_data['error']}. Available collections: {', '.join(collection_list) if collection_list else 'Unknown'}")
+                    elif "collections" in db_data:
+                        return ChatResponse(response=f"Available collections: {', '.join(db_data['collections'])}")
+                    elif "collection" in db_data and "data" in db_data:
+                        return ChatResponse(response=f"Here's some data from the '{db_data['collection']}' collection:\n{json.dumps(db_data['data'], indent=2, default=str)}")
+                    elif "agent_response" in db_data:
+                        return ChatResponse(response=db_data["agent_response"])
+                    else:
+                        return ChatResponse(response=f"I retrieved some data but couldn't analyze it properly. Here's the raw data:\n{json.dumps(db_data, indent=2, default=str)}")
+                else:
+                    return ChatResponse(response="I couldn't retrieve or analyze any data from the database. Please try a different query.")
         
         # For non-database questions, use the regular conversation chain
         response = conversation.predict(input=chat_message.message)

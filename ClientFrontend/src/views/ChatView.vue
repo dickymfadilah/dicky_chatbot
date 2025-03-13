@@ -150,48 +150,48 @@ export default {
 <style scoped>
 /* CSS Variables for Light Mode */
 :root {
-  --primary-color: #4caf50;
-  --accent-color: #45a049;
-  --background-color: #f5f5f5;
-  --chat-background: #ffffff;
-  --text-color: #333333;
-  --text-secondary: #666666;
-  --border-color: #e0e0e0;
-  --message-user-bg: #4caf50;
-  --message-user-text: #ffffff;
-  --message-assistant-bg: #e9e9e9;
-  --message-assistant-text: #333333;
-  --input-bg: #ffffff;
-  --input-border: #c0c0c0;
-  --input-focus-border: #4caf50;
-  --input-shadow: rgba(0, 0, 0, 0.1);
-  --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  --error-bg: #f8d7da;
-  --error-text: #721c24;
-  --error-border: #f5c6cb;
+  --primary-color: #2196F3; /* Blue */
+  --accent-color: #1976D2; /* Darker Blue */
+  --background-color: #F5F7FA;
+  --chat-background: #FFFFFF;
+  --text-color: #212121;
+  --text-secondary: #757575;
+  --border-color: #E0E0E0;
+  --message-user-bg: #2196F3;
+  --message-user-text: #FFFFFF;
+  --message-assistant-bg: #F1F3F6;
+  --message-assistant-text: #212121;
+  --input-bg: #FFFFFF;
+  --input-border: #BDBDBD;
+  --input-focus-border: #2196F3;
+  --input-shadow: rgba(0, 0, 0, 0.08);
+  --shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  --error-bg: #FFEBEE;
+  --error-text: #C62828;
+  --error-border: #FFCDD2;
 }
 
 /* Dark Mode Variables */
 .dark-mode {
-  --primary-color: #2e7d32;
-  --accent-color: #388e3c;
+  --primary-color: #1565C0; /* Darker Blue */
+  --accent-color: #0D47A1; /* Even Darker Blue */
   --background-color: #121212;
-  --chat-background: #1e1e1e;
-  --text-color: #e0e0e0;
-  --text-secondary: #b0b0b0;
+  --chat-background: #1A1A1A;
+  --text-color: #E0E0E0;
+  --text-secondary: #9E9E9E;
   --border-color: #333333;
-  --message-user-bg: #2e7d32;
-  --message-user-text: #ffffff;
-  --message-assistant-bg: #333333;
-  --message-assistant-text: #e0e0e0;
-  --input-bg: #2a2a2a;
-  --input-border: #444444;
-  --input-focus-border: #388e3c;
+  --message-user-bg: #1565C0;
+  --message-user-text: #FFFFFF;
+  --message-assistant-bg: #2C2C2C;
+  --message-assistant-text: #E0E0E0;
+  --input-bg: #252525;
+  --input-border: #424242;
+  --input-focus-border: #1976D2;
   --input-shadow: rgba(0, 0, 0, 0.3);
   --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-  --error-bg: #442a2d;
-  --error-text: #f8d7da;
-  --error-border: #723c40;
+  --error-bg: #311B1B;
+  --error-text: #EF9A9A;
+  --error-border: #4E2C2C;
 }
 
 .chat-container {
@@ -323,28 +323,28 @@ export default {
 
 /* Light mode specific container styling */
 :root:not(.dark-mode) .chat-container {
-  border: 2px solid #d0d0d0;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 2px solid #E0E0E0;
+  box-shadow: 0 4px 20px rgba(33, 150, 243, 0.1);
 }
 
 /* Light mode specific input container styling */
 :root:not(.dark-mode) .input-container {
-  background-color: #ffffff;
-  border-top: 2px solid #d0d0d0;
-  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.08);
+  background-color: #FFFFFF;
+  border-top: 2px solid #E0E0E0;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
 }
 
 /* Light mode specific button styling */
 :root:not(.dark-mode) .input-container button {
-  background-color: var(--accent-color);
+  background-color: #2196F3;
   color: white;
   border: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.3);
 }
 
 :root:not(.dark-mode) .input-container button:hover:not(:disabled) {
-  background-color: var(--primary-color);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25);
+  background-color: #1976D2;
+  box-shadow: 0 3px 6px rgba(33, 150, 243, 0.4);
 }
 
 .input-container form {
@@ -370,14 +370,14 @@ export default {
 
 /* Light mode specific form styling */
 :root:not(.dark-mode) .input-container form {
-  background-color: #ffffff;
-  border: 2px solid #b0b0b0;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+  background-color: #FFFFFF;
+  border: 2px solid #BDBDBD;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
 }
 
 :root:not(.dark-mode) .input-container form:focus-within {
-  border-color: var(--primary-color);
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+  border-color: #2196F3;
+  box-shadow: 0 3px 12px rgba(33, 150, 243, 0.15);
 }
 
 .input-container input {
@@ -442,8 +442,8 @@ export default {
 
 /* Light mode specific disabled button styling */
 :root:not(.dark-mode) .input-container button:disabled {
-  background-color: #e0e0e0;
-  color: #999999;
+  background-color: #E0E0E0;
+  color: #9E9E9E;
   box-shadow: none;
 }
 
@@ -458,23 +458,23 @@ export default {
 
 /* Light mode specific message container styling */
 :root:not(.dark-mode) .messages-container {
-  background-color: #f8f8f8;
-  border-bottom: 2px solid #d0d0d0;
+  background-color: #F5F7FA;
+  border-bottom: 2px solid #E0E0E0;
 }
 
 /* Light mode specific message styling */
 :root:not(.dark-mode) .message {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 :root:not(.dark-mode) .user-message {
-  border: 1px solid #3d9140;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  border: 1px solid #1976D2;
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
 }
 
 :root:not(.dark-mode) .assistant-message {
-  border: 1px solid #d0d0d0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #E0E0E0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 /* Responsive Design */

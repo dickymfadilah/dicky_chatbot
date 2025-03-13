@@ -128,8 +128,15 @@ export default {
       if (!userInput.value.trim() || chatStore.isLoading) return
       
       try {
-        await chatStore.sendMessage(userInput.value)
+        // Store the message text
+        const messageText = userInput.value
+        
+        // Clear input field immediately
         userInput.value = ''
+        
+        // Send message to API
+        await chatStore.sendMessage(messageText)
+        
         scrollToBottom()
       } catch (error) {
         console.error('Failed to send message:', error)

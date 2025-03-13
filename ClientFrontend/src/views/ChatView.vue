@@ -32,7 +32,10 @@
     </div>
     
     <div class="input-container">
-      <form @submit.prevent="handleSendMessage">
+      <form class="chat-form" @submit.prevent="handleSendMessage">
+        <div class="chat-icon">
+          💬
+        </div>
         <input 
           v-model="userInput" 
           type="text" 
@@ -159,7 +162,9 @@ export default {
   --message-assistant-bg: #e9e9e9;
   --message-assistant-text: #333333;
   --input-bg: #ffffff;
-  --input-border: #e0e0e0;
+  --input-border: #c0c0c0;
+  --input-focus-border: #4caf50;
+  --input-shadow: rgba(0, 0, 0, 0.1);
   --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   --error-bg: #f8d7da;
   --error-text: #721c24;
@@ -181,6 +186,8 @@ export default {
   --message-assistant-text: #e0e0e0;
   --input-bg: #2a2a2a;
   --input-border: #444444;
+  --input-focus-border: #388e3c;
+  --input-shadow: rgba(0, 0, 0, 0.3);
   --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   --error-bg: #442a2d;
   --error-text: #f8d7da;
@@ -308,23 +315,95 @@ export default {
   padding: 1rem;
   background-color: var(--chat-background);
   border-top: 1px solid var(--border-color);
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 -2px 10px var(--input-shadow);
+}
+
+/* Light mode specific container styling */
+:root:not(.dark-mode) .chat-container {
+  border: 2px solid #d0d0d0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Light mode specific input container styling */
+:root:not(.dark-mode) .input-container {
+  background-color: #ffffff;
+  border-top: 2px solid #d0d0d0;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* Light mode specific button styling */
+:root:not(.dark-mode) .input-container button {
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+:root:not(.dark-mode) .input-container button:hover:not(:disabled) {
+  background-color: var(--primary-color);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25);
 }
 
 .input-container form {
   display: flex;
+  align-items: center;
   gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--input-bg);
+  border-radius: 8px;
+  border: 2px solid var(--input-border);
+  box-shadow: 0 2px 8px var(--input-shadow);
+  transition: all 0.3s ease;
+}
+
+.chat-icon {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  margin-right: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Light mode specific form styling */
+:root:not(.dark-mode) .input-container form {
+  background-color: #ffffff;
+  border: 2px solid #b0b0b0;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+}
+
+:root:not(.dark-mode) .input-container form:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
 }
 
 .input-container input {
   flex: 1;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--input-border);
+  padding: 0.75rem 0.5rem;
+  border: none;
   border-radius: 4px;
   font-size: 1rem;
-  background-color: var(--input-bg);
+  background-color: transparent;
   color: var(--text-color);
   transition: all 0.3s ease;
+}
+
+.input-container input:focus {
+  outline: none;
+}
+
+/* Light mode specific input styling */
+:root:not(.dark-mode) .input-container input {
+  background-color: transparent;
+  border: none;
+}
+
+:root:not(.dark-mode) .input-container input:focus {
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .input-container input::placeholder {
@@ -336,22 +415,36 @@ export default {
   background-color: var(--accent-color);
   color: var(--message-user-text);
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
   white-space: nowrap;
+  font-weight: 500;
 }
 
 .input-container button:hover:not(:disabled) {
   background-color: var(--primary-color);
-  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.input-container button:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
 .input-container button:disabled {
   background-color: var(--border-color);
   color: var(--text-secondary);
   cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Light mode specific disabled button styling */
+:root:not(.dark-mode) .input-container button:disabled {
+  background-color: #e0e0e0;
+  color: #999999;
+  box-shadow: none;
 }
 
 .error-message {
@@ -361,6 +454,27 @@ export default {
   text-align: center;
   border-top: 1px solid var(--error-border);
   transition: all 0.3s ease;
+}
+
+/* Light mode specific message container styling */
+:root:not(.dark-mode) .messages-container {
+  background-color: #f8f8f8;
+  border-bottom: 2px solid #d0d0d0;
+}
+
+/* Light mode specific message styling */
+:root:not(.dark-mode) .message {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+:root:not(.dark-mode) .user-message {
+  border: 1px solid #3d9140;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+:root:not(.dark-mode) .assistant-message {
+  border: 1px solid #d0d0d0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Responsive Design */

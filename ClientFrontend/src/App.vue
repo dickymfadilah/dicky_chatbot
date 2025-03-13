@@ -1,13 +1,15 @@
 <template>
   <div id="app">
-    <nav class="navbar">
+    <!-- <nav class="navbar">
       <div class="container">
         <div class="navbar-brand">
-          <h1 class="title">LangChain Ollama Chatbot</h1>
+          <h1 class="title">
+            LangChain Ollama Chatbot
+          </h1>
         </div>
       </div>
-    </nav>
-    <router-view/>
+    </nav> -->
+    <router-view />
   </div>
 </template>
 

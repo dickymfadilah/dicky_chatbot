@@ -103,6 +103,16 @@ Key components:
 - Input form for user messages
 - State management for conversation history and loading states
 
+#### Code Quality Tools
+
+The frontend includes the following code quality tools:
+
+- **ESLint**: For code linting and enforcing consistent code style
+  - Configuration in `.eslintrc.js`
+  - Ignore patterns in `.eslintignore`
+  - Integrated with Vue CLI via `vue.config.js`
+  - Rules customized for Vue 3 development
+
 ## API Endpoints
 
 The backend provides the following API endpoints:
@@ -168,6 +178,15 @@ Future improvements could include:
 3. The chatbot will process your message and respond
 4. You can clear the conversation history using the "Clear Chat" button
 
+### Development Workflow
+
+1. **Code Style and Linting**
+   ```bash
+   cd ClientFrontend
+   npm run lint -- --fix
+   ```
+   This will automatically fix any linting issues in the frontend code.
+
 ## Troubleshooting
 
 Common issues and solutions:
@@ -185,4 +204,27 @@ Common issues and solutions:
 3. **Memory Issues**
    - Long conversations may consume more memory
    - Use the clear history function periodically
-   - Consider implementing a message limit if needed 
+   - Consider implementing a message limit if needed
+
+4. **ESLint Issues**
+   - If you encounter ESLint errors, run `npm run lint -- --fix` in the ClientFrontend directory
+   - Check the ESLint configuration in `.eslintrc.js` if you need to customize rules
+   - Add files to `.eslintignore` if they should be excluded from linting
+
+## Project Maintenance Guidelines
+
+1. **Documentation Updates**
+   - Update documentation whenever you make changes to the codebase
+   - Document new features, configuration changes, and bug fixes
+   - Keep API documentation up-to-date with any endpoint changes
+   - Include examples for new functionality
+
+2. **Version Control**
+   - Use descriptive commit messages
+   - Create branches for new features or bug fixes
+   - Merge changes only after testing
+
+3. **Testing**
+   - Test backend API endpoints after making changes
+   - Verify frontend functionality in different browsers
+   - Check mobile responsiveness for UI changes 

@@ -18,6 +18,7 @@ This frontend application provides a user-friendly interface for interacting wit
 - Conversation history management
 - Clear and intuitive user experience
 - Pinia state management for efficient data handling
+- ESLint configuration for code quality
 
 ## Chatbot Capabilities
 
@@ -72,6 +73,29 @@ Through the interface, you can interact with the Llama 3 model to:
    ```
 
 2. The built files will be in the `dist` directory, which can be deployed to a web server.
+
+## Development
+
+### Code Quality
+
+This project uses ESLint for code quality and style enforcement:
+
+1. ESLint configuration is in `.eslintrc.js`
+2. Files to ignore are specified in `.eslintignore`
+3. Vue CLI configuration is in `vue.config.js`
+
+To run the linter and fix issues:
+```
+npm run lint -- --fix
+```
+
+### Documentation
+
+Following the project guidelines, remember to:
+1. Update documentation when making code changes
+2. Document new features and configuration changes
+3. Keep API documentation current
+4. Include examples for new functionality
 
 ## Project Structure
 

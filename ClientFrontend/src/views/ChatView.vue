@@ -29,24 +29,24 @@
           v-model="userInput" 
           type="text" 
           placeholder="Type your message here..." 
-          :disabled="isLoading"
+          :disabled="chatStore.isLoading"
         />
-        <button type="submit" :disabled="isLoading || !userInput.trim()">
-          <span v-if="isLoading">Sending...</span>
+        <button type="submit" :disabled="chatStore.isLoading || !userInput.trim()">
+          <span v-if="chatStore.isLoading">Sending...</span>
           <span v-else>Send</span>
         </button>
       </form>
     </div>
     
-    <div v-if="hasError" class="error-message">
-      <p>{{ getError }}</p>
+    <div v-if="chatStore.hasError" class="error-message">
+      <p>{{ chatStore.getError }}</p>
     </div>
   </div>
 </template>
 
 <script>
-import { ref } from 'vue'
-import { mapActions, mapGetters } from 'vuex'
+import { computed, onMounted, ref } from 'vue'
+import { useChatStore } from '../stores/chatStore'
 
 export default {
   name: 'ChatView',
@@ -54,74 +54,55 @@ export default {
   setup() {
     const userInput = ref('')
     const messagesContainer = ref(null)
+    const chatStore = useChatStore()
     
-    return {
-      userInput,
-      messagesContainer
-    }
-  },
-  
-  computed: {
-    ...mapGetters([
-      'getMessages',
-      'isLoading',
-      'hasError',
-      'getError'
-    ]),
+    const messages = computed(() => chatStore.getMessages)
     
-    messages() {
-      return this.getMessages
-    }
-  },
-  
-  methods: {
-    ...mapActions([
-      'sendMessage',
-      'fetchHistory',
-      'clearHistory'
-    ]),
-    
-    async handleSendMessage() {
-      if (!this.userInput.trim() || this.isLoading) return
+    const handleSendMessage = async () => {
+      if (!userInput.value.trim() || chatStore.isLoading) return
       
       try {
-        await this.sendMessage(this.userInput)
-        this.userInput = ''
-        this.scrollToBottom()
+        await chatStore.sendMessage(userInput.value)
+        userInput.value = ''
+        scrollToBottom()
       } catch (error) {
         console.error('Failed to send message:', error)
       }
-    },
+    }
     
-    async clearChat() {
+    const clearChat = async () => {
       try {
-        await this.clearHistory()
+        await chatStore.clearHistory()
       } catch (error) {
         console.error('Failed to clear chat:', error)
       }
-    },
+    }
     
-    scrollToBottom() {
+    const scrollToBottom = () => {
       setTimeout(() => {
-        if (this.messagesContainer) {
-          this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight
+        if (messagesContainer.value) {
+          messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
         }
       }, 100)
     }
-  },
-  
-  watch: {
-    messages() {
-      this.scrollToBottom()
-    }
-  },
-  
-  async mounted() {
-    try {
-      await this.fetchHistory()
-      this.scrollToBottom()
-    } catch (error) {
-      console.error('Failed to fetch history:', error)
+    
+    onMounted(async () => {
+      try {
+        await chatStore.fetchHistory()
+        scrollToBottom()
+      } catch (error) {
+        console.error('Failed to fetch chat history:', error)
+      }
+    })
+    
+    return {
+      userInput,
+      messagesContainer,
+      chatStore,
+      messages,
+      handleSendMessage,
+      clearChat,
+      scrollToBottom
     }
   }
 }

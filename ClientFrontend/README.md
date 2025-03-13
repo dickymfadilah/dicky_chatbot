@@ -48,7 +48,7 @@ This is a Vue.js frontend for the LangChain Ollama Chatbot.
 
 - `src/components/`: Vue components
 - `src/views/`: Vue views/pages
-- `src/store/`: Vuex store for state management
+- `src/stores/`: Pinia stores for state management
 - `src/assets/`: Static assets
 - `src/router.js`: Vue Router configuration
 - `src/main.js`: Application entry point 

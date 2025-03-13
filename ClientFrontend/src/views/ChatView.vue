@@ -3,7 +3,7 @@
     <div class="chat-header">
       <h2>Chat with AI</h2>
       <div class="header-controls">
-        <button class="db-button" @click="showDatabaseInfo" title="Show database collections">
+        <button class="db-button" title="Show database collections" @click="showDatabaseInfo">
           <span>🗃️ DB</span>
         </button>
         <button class="theme-toggle" aria-label="Toggle theme" @click="toggleTheme">
@@ -164,7 +164,7 @@ export default {
     
     const showDatabaseInfo = async () => {
       try {
-        userInput.value = "Show me the available collections in the database and what kind of data they contain."
+        userInput.value = "Show me the available database collection and what kind of data they contain."
         await handleSendMessage()
       } catch (error) {
         console.error('Failed to query database:', error)

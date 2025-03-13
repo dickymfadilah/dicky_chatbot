@@ -152,14 +152,14 @@ export default {
 :root {
   --primary-color: #2196F3; /* Blue */
   --accent-color: #1976D2; /* Darker Blue */
-  --background-color: #F5F7FA;
-  --chat-background: #FFFFFF;
+  --background-color: #FFFFFF; /* Brighter white background */
+  --chat-background: #FFFFFF; /* Pure white chat background */
   --text-color: #212121;
   --text-secondary: #757575;
   --border-color: #E0E0E0;
   --message-user-bg: #2196F3;
   --message-user-text: #FFFFFF;
-  --message-assistant-bg: #F1F3F6;
+  --message-assistant-bg: #F8F9FA; /* Lighter background for assistant messages */
   --message-assistant-text: #212121;
   --input-bg: #FFFFFF;
   --input-border: #BDBDBD;
@@ -175,14 +175,14 @@ export default {
 .dark-mode {
   --primary-color: #1565C0; /* Darker Blue */
   --accent-color: #0D47A1; /* Even Darker Blue */
-  --background-color: #121212;
-  --chat-background: #1A1A1A;
+  --background-color: #000000; /* Pure black background */
+  --chat-background: #121212; /* Very dark chat background */
   --text-color: #E0E0E0;
   --text-secondary: #9E9E9E;
   --border-color: #333333;
   --message-user-bg: #1565C0;
   --message-user-text: #FFFFFF;
-  --message-assistant-bg: #2C2C2C;
+  --message-assistant-bg: #1A1A1A; /* Darker background for assistant messages */
   --message-assistant-text: #E0E0E0;
   --input-bg: #252525;
   --input-border: #424242;
@@ -386,19 +386,32 @@ export default {
   border: none;
   border-radius: 4px;
   font-size: 1rem;
-  background-color: transparent;
-  color: var(--text-color);
+  background-color: #FFFFFF !important;
+  color: #212121;
   transition: all 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 .input-container input:focus {
   outline: none;
 }
 
-/* Light mode specific input styling */
+/* Light mode specific input styling - overriding to ensure consistency */
 :root:not(.dark-mode) .input-container input {
-  background-color: transparent;
+  background-color: #FFFFFF !important;
   border: none;
+  color: #212121;
+}
+
+/* Dark mode specific input styling - overriding to ensure consistency */
+.dark-mode .input-container input {
+  background-color: #FFFFFF !important;
+  color: #212121;
 }
 
 :root:not(.dark-mode) .input-container input:focus {
@@ -407,7 +420,7 @@ export default {
 }
 
 .input-container input::placeholder {
-  color: var(--text-secondary);
+  color: #757575;
 }
 
 .input-container button {

@@ -92,7 +92,8 @@ try:
         verbose=True,
         memory=memory,
         handle_parsing_errors=True,
-        max_iterations=5,  # Limit iterations to prevent infinite loops
+        max_iterations=3,  # Reduce max iterations to prevent loops
+        max_execution_time=10.0,  # Add timeout to prevent long-running operations
         system_message=SYSTEM_PROMPT
     )
 except Exception as e:
@@ -207,31 +208,22 @@ async def chat(chat_message: ChatMessage):
         
         # Handle database-related questions
         if normalized_json.get("is_database_question", False):
-            # If we have a functioning agent, use it
-            if agent is not None:
-                try:
-                    response = agent.run(input=chat_message.message)
-                    return ChatResponse(response=response)
-                except Exception as agent_error:
-                    print(f"Agent error: {str(agent_error)}")
+            # Get the collection name from analysis
+            collection_name = normalized_json.get("collection")
+            query_type = normalized_json.get("query_type", "query_documents")
             
-            # If agent fails or is not available, use direct handling
+            # Direct handling based on analysis
             try:
                 from .mongodb_utils import get_mongodb_client
                 client = get_mongodb_client()
                 
-                # Get the collection name from analysis or try to extract it
-                collection_name = normalized_json.get("collection")
+                # If collection name is not identified, try to extract it from the query
                 if not collection_name or collection_name == "null":
-                    # Try to extract collection name from the query
                     words = chat_message.message.lower().split()
                     for i, word in enumerate(words):
                         if word in ["collection", "collections"] and i+1 < len(words):
                             collection_name = words[i+1]
                             break
-                
-                # Handle different query types
-                query_type = normalized_json.get("query_type", "query_documents")
                 
                 # List collections
                 if query_type == "list_collections" or "list" in chat_message.message.lower() and "collection" in chat_message.message.lower():
@@ -248,6 +240,18 @@ async def chat(chat_message: ChatMessage):
                         print(f"Collection query error: {str(collection_error)}")
                         collections = client.get_collections()
                         return ChatResponse(response=f"I couldn't find or query the collection '{collection_name}'. Available collections are: {', '.join(collections)}")
+                
+                # If we have a functioning agent and couldn't handle directly, try the agent
+                elif agent is not None:
+                    try:
+                        # Use a simplified input for the agent
+                        response = agent.run(chat_message.message)
+                        return ChatResponse(response=response)
+                    except Exception as agent_error:
+                        print(f"Agent error: {str(agent_error)}")
+                        # Fallback to listing collections
+                        collections = client.get_collections()
+                        return ChatResponse(response=f"I'm not sure which collection you're interested in. Here are the available collections: {', '.join(collections)}")
                 
                 # Fallback to listing collections
                 else:

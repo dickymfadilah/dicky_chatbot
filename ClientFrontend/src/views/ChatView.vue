@@ -28,6 +28,15 @@
             <p>{{ message.content }}</p>
           </div>
         </div>
+        
+        <!-- Typing indicator -->
+        <div v-if="showTypingIndicator" class="message assistant-message typing-indicator">
+          <div class="typing-animation">
+            <span />
+            <span />
+            <span />
+          </div>
+        </div>
       </div>
     </div>
     
@@ -70,6 +79,19 @@ export default {
     
     const messages = computed(() => chatStore.getMessages)
     
+    // Computed property to determine if typing indicator should be shown
+    const showTypingIndicator = computed(() => {
+      if (!chatStore.isLoading) return false
+      
+      // Show typing indicator if there are messages and the last one is from the user
+      if (messages.value.length > 0) {
+        const lastMessage = messages.value[messages.value.length - 1]
+        return lastMessage.role === 'user'
+      }
+      
+      return false
+    })
+    
     // Initialize theme based on user preference or system preference
     onMounted(() => {
       const savedTheme = localStorage.getItem('theme')
@@ -89,6 +111,13 @@ export default {
     watch(isDarkMode, (newValue) => {
       localStorage.setItem('theme', newValue ? 'dark' : 'light')
       document.body.classList.toggle('dark-mode', newValue)
+    })
+    
+    // Watch for loading state changes to scroll to bottom when typing indicator appears
+    watch(() => chatStore.isLoading, (newValue) => {
+      if (newValue && showTypingIndicator.value) {
+        scrollToBottom()
+      }
     })
     
     const toggleTheme = () => {
@@ -141,7 +170,8 @@ export default {
       clearChat,
       scrollToBottom,
       isDarkMode,
-      toggleTheme
+      toggleTheme,
+      showTypingIndicator
     }
   }
 }
@@ -192,6 +222,74 @@ export default {
   --error-bg: #311B1B;
   --error-text: #EF9A9A;
   --error-border: #4E2C2C;
+}
+
+/* Typing indicator styles */
+.typing-indicator {
+  padding: 15px 20px;
+  display: inline-block;
+  border-radius: 8px;
+  border-bottom-left-radius: 0;
+  position: relative;
+  animation: fadeIn 0.3s ease-in-out;
+  min-width: 60px;
+  max-width: 60px;
+}
+
+.typing-animation {
+  display: flex;
+  align-items: center;
+  height: 17px;
+}
+
+.typing-animation span {
+  height: 8px;
+  width: 8px;
+  float: left;
+  margin: 0 1px;
+  background-color: var(--text-secondary);
+  display: block;
+  border-radius: 50%;
+  opacity: 0.4;
+}
+
+/* Light mode specific typing indicator */
+:root:not(.dark-mode) .typing-indicator {
+  background-color: var(--message-assistant-bg);
+  border: 1px solid #E0E0E0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+:root:not(.dark-mode) .typing-animation span {
+  background-color: #757575;
+}
+
+/* Dark mode specific typing indicator */
+.dark-mode .typing-indicator {
+  background-color: var(--message-assistant-bg);
+  border: 1px solid var(--border-color);
+}
+
+.dark-mode .typing-animation span {
+  background-color: #E0E0E0;
+}
+
+.typing-animation span:nth-of-type(1) {
+  animation: 1s blink infinite 0.3333s;
+}
+
+.typing-animation span:nth-of-type(2) {
+  animation: 1s blink infinite 0.6666s;
+}
+
+.typing-animation span:nth-of-type(3) {
+  animation: 1s blink infinite 0.9999s;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 1;
+  }
 }
 
 .chat-container {

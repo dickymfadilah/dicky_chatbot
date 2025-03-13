@@ -225,7 +225,7 @@ async def chat(chat_message: ChatMessage):
         if "query_type" not in normalized_json:
             normalized_json["query_type"] = "query_documents"
         
-        # Handle database-related questions
+        # Handle database-related questions directly based on the analysis
         if normalized_json.get("is_database_question", False):
             # Get the collection name from analysis
             collection_name = normalized_json.get("collection")
@@ -326,10 +326,10 @@ async def chat(chat_message: ChatMessage):
                         return ChatResponse(response=f"I retrieved some data but couldn't analyze it properly. Here's the raw data:\n{json.dumps(db_data, indent=2, default=str)}")
                 else:
                     return ChatResponse(response="I couldn't retrieve or analyze any data from the database. Please try a different query.")
-        
-        # For non-database questions, use the regular conversation chain
-        response = conversation.predict(input=chat_message.message)
-        return ChatResponse(response=response)
+        else:
+            # For non-database questions, use the conversation chain directly
+            response = conversation.predict(input=chat_message.message)
+            return ChatResponse(response=response)
         
     except Exception as e:
         print(f"Chat endpoint error: {str(e)}")

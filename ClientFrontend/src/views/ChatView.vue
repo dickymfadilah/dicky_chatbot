@@ -164,7 +164,7 @@ export default {
     
     const showDatabaseInfo = async () => {
       try {
-        userInput.value = "Show me the available database collection and what kind of data they contain."
+        userInput.value = "Show me the available database"
         await handleSendMessage()
       } catch (error) {
         console.error('Failed to query database:', error)

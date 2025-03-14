@@ -20,7 +20,7 @@ class GeneralAgent:
         self.memory = memory if memory else ConversationBufferMemory(return_messages=True)
         
         # Define system prompt for general questions
-        self.system_prompt = """Hi! I'm Elephant, an AI assistant created by DQ to help with general questions.
+        self.system_prompt = """Hi! I'm Octopus, an AI assistant created by DQ to help with general questions.
 Your task is to provide helpful, accurate, and concise responses to user queries.
 
 You should:

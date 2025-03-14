@@ -35,15 +35,18 @@ class ClassifierAgent:
         """
         # Define the analysis prompt
         analysis_prompt = f"""
-        Hi! I'm Lion, an AI assistant created by DQ to help with classification questions.
+        Hi! I'm Octopus, an AI assistant created by DQ to help with classification questions.
         
         I'll analyze your message to determine:
         1. Is this a database-related question? (yes/no)
-        2. If yes, which collection might it be referring to? (If collection name doesn't end with 's', add 's')
+        2. If yes, which collection might it be referring to?
         3. What type of query is needed? (list collections, query documents, get document by id, text search)
         
         IMPORTANT NOTES ABOUT MONGODB COLLECTIONS:
-        - MongoDB collection names typically end with 's' (e.g., users, products, orders, transactions)
+        - MongoDB collection names MUST ALWAYS end with 's' (e.g., users, products, orders, transactions)
+        - If you identify a collection name that doesn't end with 's', YOU MUST add 's' to make it plural
+        - For example: "user" should become "users", "product" should become "products"
+        - This is a STRICT REQUIREMENT - all collection names in your response MUST end with 's'
         - Collections store multiple related documents of the same type
         - Look for plural nouns in the user's message as they likely refer to collections
         - Common collection naming patterns: 
@@ -59,10 +62,12 @@ class ClassifierAgent:
             "collection": "collection_name_or_null",
             "query_type": "list_collections/query_documents/get_document/text_search"
         }}
+        
+        CRITICAL REQUIREMENT: If the "collection" field is not null, it MUST end with 's'.
+        If you detect a collection name like "user", "product", "order", etc., you MUST add 's' to make it plural.
                 
         DO NOT include comments, explanations, or any non-JSON content in your response.
         Ensure all property names are in double quotes and follow standard JSON format.
-        If you detect a potential collection name that doesn't end with 's', add 's' to make it plural.
         """
         
         # Get the analysis response from the LLM
@@ -115,6 +120,11 @@ class ClassifierAgent:
                 "collection": None,
                 "query_type": "list_collections" if "list" in user_message.lower() else "query_documents"
             }
+        
+        # Ensure collection name always ends with 's' if it exists
+        if analysis_json.get("collection") and isinstance(analysis_json["collection"], str) and analysis_json["collection"] != "null":
+            if not analysis_json["collection"].endswith('s'):
+                analysis_json["collection"] = analysis_json["collection"] + 's'
         
         print(f"Classification result: {analysis_json}")
         return analysis_json 

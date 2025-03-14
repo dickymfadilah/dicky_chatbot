@@ -250,6 +250,7 @@ async def chat(chat_message: ChatMessage):
                 
                 # If we have database data, include it in the agent's context
                 if db_data:
+                    print(f"Database data: {db_data}")
                     # Format the data for the agent
                     data_str = json.dumps(db_data, indent=2, default=str)
                     enhanced_query = f"""
@@ -260,11 +261,23 @@ async def chat(chat_message: ChatMessage):
                     Please analyze this data and answer the user's question.
                     """
                     
-                    # Use the agent with the enhanced query
-                    agent_response = agent.run(enhanced_query)
+                    # Use the agent with the enhanced query - replace run with invoke
+                    agent_response = agent.invoke({
+                        "input": enhanced_query,
+                        "chat_history": memory.chat_memory.messages
+                    })
+                    # Extract the response from the agent's output
+                    if isinstance(agent_response, dict) and "output" in agent_response:
+                        agent_response = agent_response["output"]
                 else:
                     # Use the agent with the original query if no data was retrieved
-                    agent_response = agent.run(chat_message.message)
+                    agent_response = agent.invoke({
+                        "input": chat_message.message,
+                        "chat_history": memory.chat_memory.messages
+                    })
+                    # Extract the response from the agent's output
+                    if isinstance(agent_response, dict) and "output" in agent_response:
+                        agent_response = agent_response["output"]
                 
                 return ChatResponse(response=agent_response)
             except Exception as agent_error:

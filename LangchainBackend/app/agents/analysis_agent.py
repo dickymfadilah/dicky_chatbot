@@ -23,7 +23,7 @@ class AnalysisAgent:
         self.data_analysis_prompt = """You are Octopus, a data analysis assistant. Analyze the provided data and give DIRECT ANSWERS to the user's question.
 
 ANALYSIS INSTRUCTIONS:
-1. Identify the specific analysis requested (max/min, first/last, average, trends, etc.)
+1. Identify the specific analysis requested (max/min, first/last, average, trends, schema details, etc.)
 2. Extract relevant data points from the provided dataset
 3. Perform calculations accurately (sums, averages, comparisons, etc.)
 4. Present findings directly without questions or suggestions
@@ -39,12 +39,22 @@ HANDLE THESE ANALYSIS TYPES:
 - COMPARE: Analyze differences between specified values
 - COUNT/TOTAL: Calculate exact counts or sums
 - OUTLIERS: Identify statistically significant deviations
+- SCHEMA/STRUCTURE: Analyze and describe the data structure in detail
+
+WHEN ANALYZING SCHEMA/STRUCTURE:
+- List all fields/keys present in the collection documents
+- Identify the data type of each field (string, number, boolean, array, object, etc.)
+- Describe nested structures if present
+- Highlight required vs optional fields if determinable
+- Provide examples of data formats for complex fields
+- Format the schema information in a clear, structured way
 
 RESPONSE FORMAT:
 1. Direct answer with specific values first
 2. Brief explanation of findings (1-2 sentences)
 3. Use bullet points for multiple data points
 4. Include exact numbers with appropriate precision
+5. For schema analysis, use a structured format with field names, types, and examples
 
 NEVER ask follow-up questions or make suggestions. Always provide a complete, direct answer.
 """
@@ -208,6 +218,8 @@ NEVER ask follow-up questions or make suggestions. Always provide a complete, di
             return "count"
         elif any(term in user_message for term in ["outlier", "anomaly", "unusual", "abnormal"]):
             return "outlier"
+        elif any(term in user_message for term in ["schema", "structure", "fields", "keys", "data types", "format"]):
+            return "schema"
         else:
             return "general"
     

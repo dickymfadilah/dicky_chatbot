@@ -20,21 +20,33 @@ class AnalysisAgent:
         self.llm = llm
         
         # Define data analysis prompt
-        self.data_analysis_prompt = """Hi! I'm Octopus, an AI assistant created by DQ to help with data analysis.
-Your task is to analyze this data and provide DIRECT, STRAIGHT ANSWERS based on the user's question.
+        self.data_analysis_prompt = """You are Octopus, a data analysis assistant. Analyze the provided data and give DIRECT ANSWERS to the user's question.
 
-IMPORTANT INSTRUCTIONS:
-1. Understand what the user is asking about this data
-2. Analyze the provided data to find relevant information
-3. Present your findings in a clear, concise manner
-4. NEVER ask follow-up questions - only provide direct answers and insights
-5. If the user's intent is unclear, make your best interpretation and provide relevant information
-6. ALWAYS provide a straight answer, even if you're uncertain
-7. DO NOT use phrases like "Would you like me to..." or "Do you want me to..."
-8. DO NOT suggest additional analyses or ask for clarification
+ANALYSIS INSTRUCTIONS:
+1. Identify the specific analysis requested (max/min, first/last, average, trends, etc.)
+2. Extract relevant data points from the provided dataset
+3. Perform calculations accurately (sums, averages, comparisons, etc.)
+4. Present findings directly without questions or suggestions
+5. Format numerical results clearly with appropriate units
 
-Remember to focus on the specific aspects of the data that the user is interested in and ALWAYS provide a direct, straight answer.
-dont ask follow up questions
+HANDLE THESE ANALYSIS TYPES:
+- MAX/HIGHEST: Find maximum values in specified fields
+- MIN/LOWEST: Find minimum values in specified fields
+- FIRST/EARLIEST: Return chronologically first entries
+- LAST/RECENT: Return chronologically last entries
+- AVERAGE/MEAN: Calculate averages of specified fields
+- TRENDS: Identify patterns or changes over time
+- COMPARE: Analyze differences between specified values
+- COUNT/TOTAL: Calculate exact counts or sums
+- OUTLIERS: Identify statistically significant deviations
+
+RESPONSE FORMAT:
+1. Direct answer with specific values first
+2. Brief explanation of findings (1-2 sentences)
+3. Use bullet points for multiple data points
+4. Include exact numbers with appropriate precision
+
+NEVER ask follow-up questions or make suggestions. Always provide a complete, direct answer.
 """
         
         # Create a data analysis prompt template
@@ -55,8 +67,8 @@ dont ask follow up questions
             Analysis of the data
         """
         try:
-            # Format the data for analysis
-            data_str = json.dumps(db_data, indent=2, default=str)
+            # Format the data for analysis - optimize for Ollama 3
+            data_str = self._prepare_data_for_analysis(db_data, user_message)
             
             # Check if there's an error in the data
             if "error" in db_data:
@@ -117,6 +129,87 @@ dont ask follow up questions
         except Exception as analysis_error:
             print(f"Analysis error: {str(analysis_error)}")
             return "I encountered an error while analyzing the data. The analysis shows the data is incomplete or unavailable."
+    
+    def _prepare_data_for_analysis(self, db_data: Dict[str, Any], user_message: str) -> str:
+        """
+        Prepare and optimize data for analysis based on the user's query.
+        
+        Args:
+            db_data: Dictionary with database data
+            user_message: The user's message/question
+            
+        Returns:
+            Formatted data string optimized for the analysis
+        """
+        # Check if we need to limit data size for efficiency
+        if "data" in db_data and isinstance(db_data["data"], list) and len(db_data["data"]) > 50:
+            # For large datasets, we might want to sample or summarize
+            # But first check if user is asking for specific analysis that needs all data
+            
+            # Keywords that might indicate need for full dataset analysis
+            full_data_keywords = ["all", "every", "each", "complete", "entire", "total"]
+            needs_full_data = any(keyword in user_message.lower() for keyword in full_data_keywords)
+            
+            # Analysis types that typically need the full dataset
+            if any(term in user_message.lower() for term in ["average", "mean", "trend", "pattern", "outlier"]):
+                needs_full_data = True
+                
+            # If we don't need full data and it's a large dataset, sample it
+            if not needs_full_data and len(db_data["data"]) > 100:
+                # Keep first and last 25 items for context
+                sampled_data = db_data["data"][:25] + db_data["data"][-25:]
+                db_data["data"] = sampled_data
+                db_data["note"] = f"Data sampled from {len(db_data['data'])} records for efficiency."
+        
+        # Detect specific analysis types from user message
+        analysis_type = self._detect_analysis_type(user_message)
+        
+        # Add metadata to help the model understand the data structure
+        if "data" in db_data and isinstance(db_data["data"], list) and len(db_data["data"]) > 0:
+            # Add data structure info
+            sample_item = db_data["data"][0]
+            if isinstance(sample_item, dict):
+                db_data["structure"] = {
+                    "fields": list(sample_item.keys()),
+                    "count": len(db_data["data"]),
+                    "analysis_type": analysis_type
+                }
+        
+        # Convert to string with appropriate formatting
+        return json.dumps(db_data, indent=2, default=str)
+    
+    def _detect_analysis_type(self, user_message: str) -> str:
+        """
+        Detect the type of analysis requested in the user message.
+        
+        Args:
+            user_message: The user's message/question
+            
+        Returns:
+            The detected analysis type
+        """
+        user_message = user_message.lower()
+        
+        if any(term in user_message for term in ["highest", "maximum", "max", "top", "largest"]):
+            return "maximum"
+        elif any(term in user_message for term in ["lowest", "minimum", "min", "bottom", "smallest"]):
+            return "minimum"
+        elif any(term in user_message for term in ["first", "earliest", "initial", "beginning"]):
+            return "first"
+        elif any(term in user_message for term in ["last", "latest", "most recent", "newest"]):
+            return "last"
+        elif any(term in user_message for term in ["average", "mean", "typical"]):
+            return "average"
+        elif any(term in user_message for term in ["trend", "pattern", "over time", "change"]):
+            return "trend"
+        elif any(term in user_message for term in ["compare", "difference", "versus", "vs"]):
+            return "comparison"
+        elif any(term in user_message for term in ["count", "total", "sum", "how many"]):
+            return "count"
+        elif any(term in user_message for term in ["outlier", "anomaly", "unusual", "abnormal"]):
+            return "outlier"
+        else:
+            return "general"
     
     def remove_questions_and_suggestions(self, text: str) -> str:
         """
